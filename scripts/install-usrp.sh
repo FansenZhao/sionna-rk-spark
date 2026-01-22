@@ -94,17 +94,17 @@ execute sudo apt install -y \
     python3-scipy python3-setuptools python3-ruamel.yaml ninja-build
 
 # ensure target dir path exist
-execute mkdir -p "${base_dir}/ext/"
+# execute mkdir -p "${base_dir}/ext/"
 
 # Clone UHD repository
-execute git clone https://github.com/EttusResearch/uhd.git "${base_dir}/ext/uhd"
+# execute git clone https://github.com/EttusResearch/uhd.git "${base_dir}/ext/uhd"
 
-execute pushd  "${base_dir}/ext/uhd/host"
-execute mkdir build
-execute cd build
-execute cmake -DCMAKE_POLICY_DEFAULT_CMD0167=NEW -GNinja ..
-execute ninja
-execute ninja test
+execute pushd  "${base_dir}/ext/uhd/host/build"
+# execute mkdir build
+# execute cd build
+# execute cmake -DCMAKE_POLICY_DEFAULT_CMD0167=NEW -GNinja ..
+# execute ninja
+# execute ninja test
 execute sudo ninja install
 execute popd
 

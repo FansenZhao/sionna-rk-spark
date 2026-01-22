@@ -10,7 +10,11 @@ echo "It will ask for password on the first call to sudo."
 # install git, docker and a few build dependencies
 sudo apt update
 sudo apt dist-upgrade -y
-sudo apt install -y apt-utils coreutils git-core git cmake build-essential bc libssl-dev python3 python3-pip ninja-build ca-certificates curl pandoc
+# sudo apt install -y apt-utils coreutils git-core git cmake build-essential bc libssl-dev python3 python3-pip ninja-build ca-certificates curl pandoc
+mkdir ../ext/apt-offine
+tar -xzvf ../apt-offine.tar.gz -C ../ext/apt-offine
+sudo dpkg -i ../ext/apt-offine/*.deb || sudo apt -f install
+rm -rf ../ext/apt-offine
 
 # Add Docker's official repository
 if [ ! -f /etc/apt/keyrings/docker.asc ]; then
@@ -30,7 +34,11 @@ fi
 
 # install docker and its plugins
 sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nvidia-container-toolkit
+# sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nvidia-container-toolkit
+mkdir ../ext/docker-offine
+tar -xzvf ../docker-offine.tar.gz -C ../ext/docker-offine
+sudo dpkg -i ../ext/docker-offine/*.deb || sudo apt -f install
+rm -rf ../ext/docker-offine
 
 # add user to docker group
 if id -nG "$USER" | grep -qw "docker"; then
@@ -71,7 +79,12 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 
 # install tensorrt
-sudo apt install -y cuda-toolkit tensorrt nvtop
+# sudo apt install -y cuda-toolkit tensorrt nvtop
+mkdir ../ext/tensorrt-offine
+tar -xzvf ../tensorrt-offine.tar.gz -C ../ext/tensorrt-offine
+sudo dpkg -i ../ext/tensorrt-offine/*.deb || sudo apt -f install
+rm -rf ../ext/tensorrt-offine
+
 
 # add trtexec alias
 touch ~/.bash_aliases
@@ -87,10 +100,29 @@ pushd $base_dir
 python3 -m venv env
 source "${base_dir}/env/bin/activate"
 python -m pip install -r "${base_dir}/requirements.txt"
+mkdir ../ext/pip-offine
+tar -xzvf ../pip-offine.tar.gz -C ../ext/pip-offine
+pip install --no-index --find-links=../ext/pip-offine -r "${base_dir}/requirements.txt"
+rm -rf ../ext/pip-offine
 deactivate
 
 # install USRP drivers
 ${base_dir}/scripts/install-usrp.sh
+
+# install OAI Images
+sudo docker load -i ../ext/spark-1.1.0/oai-flexric.tar
+sudo docker load -i ../ext/spark-1.1.0/oai-nr-ue-cuda-spark.tar
+sudo docker load -i ../ext/spark-1.1.0/oai-gnb-cuda-spark.tar
+sudo docker load -i ../ext/spark-1.1.0/ran-build-cuda-spark.tar
+sudo docker load -i ../ext/spark-1.1.0/ran-base-cuda-spark.tar
+sudo docker load -i ../ext/spark-1.1.0/mysql8.0.tar
+sudo docker load -i ../ext/spark-1.1.0/ubuntu.noble.tar
+sudo docker load -i ../ext/spark-1.1.0/cuda-ubuntu2404.tar
+sudo docker load -i ../ext/spark-1.1.0/oai-trf-gen-cn5g-latest.tar
+sudo docker load -i ../ext/spark-1.1.0/oai-smf-2.1.10.tar
+sudo docker load -i ../ext/spark-1.1.0/oai-upf-2.1.10.tar
+sudo docker load -i ../ext/spark-1.1.0/oai-amf-2.1.10.tar
+
 
 # configure SRK_PLATFORM variable. Used to decide platform flags
 if [ -z "$SRK_PLATFORM" ]; then
